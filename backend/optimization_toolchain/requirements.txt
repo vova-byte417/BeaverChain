@@ -1,0 +1,101 @@
+# ============================================
+# 优化工具链 - 依赖列表
+# ============================================
+
+# ============== 核心依赖 ==============
+torch>=2.0.0
+transformers>=4.35.0
+accelerate>=0.24.0
+datasets>=2.14.0
+
+# ============== 量化相关依赖 ==============
+# GPTQ (二选一)
+auto-gptq>=0.5.0
+optimum[gptq]>=1.14.0
+
+# AWQ (二选一)
+autoawq>=0.1.0
+awq>=0.2.0
+
+# SqueezeLLM (可选)
+squeezellm>=0.1.0
+
+# bitsandbytes (用于量化和推理)
+bitsandbytes>=0.41.0
+
+# ============== 推理引擎依赖 ==============
+# vLLM (高性能推理)
+vllm>=0.2.0
+
+# DeepSpeed (大规模推理和训练)
+deepspeed>=0.12.0
+
+# TGI - Text Generation Inference
+text-generation>=0.6.0
+
+# ============== 蒸馏相关依赖 ==============
+# 知识蒸馏
+transformers[sentencepiece]>=4.35.0
+
+# ============== 工具和辅助 ==============
+numpy>=1.24.0
+scipy>=1.11.0
+pandas>=2.0.0
+tqdm>=4.65.0
+pyyaml>=6.0
+python-dotenv>=1.0.0
+rich>=13.0.0
+
+# 日志和监控
+wandb>=0.15.0
+tensorboard>=2.14.0
+
+# ============== 测试依赖 ==============
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-asyncio>=0.21.0
+
+# ============== 开发和文档 ==============
+black>=23.0.0
+isort>=5.12.0
+flake8>=6.0.0
+mypy>=1.5.0
+
+# ============== 安装说明 ==============
+# 1. 基础安装 (仅核心功能):
+#    pip install torch transformers accelerate datasets
+#
+# 2. 完整安装 (所有引擎):
+#    pip install -r requirements.txt
+#
+# 3. 只安装特定功能:
+#
+#    # 仅量化功能
+#    pip install auto-gptq autoawq bitsandbytes
+#
+#    # 仅 vLLM 推理
+#    pip install vllm
+#
+#    # 仅 DeepSpeed
+#    pip install deepspeed
+#
+#    # 仅 TGI
+#    pip install text-generation
+#
+#    # 仅蒸馏
+#    pip install torch transformers accelerate
+#
+# 4. 从源码安装 (获取最新特性):
+#    # vLLM
+#    pip install git+https://github.com/vllm-project/vllm.git
+#
+#    # AutoGPTQ
+#    pip install git+https://github.com/PanQiWei/AutoGPTQ.git
+#
+#    # AutoAWQ
+#    pip install git+https://github.com/casper-hansen/AutoAWQ.git
+#
+#    # DeepSpeed
+#    DS_BUILD_OPS=1 pip install deepspeed
+#
+# 注意: 某些功能需要特定的 CUDA 版本支持
