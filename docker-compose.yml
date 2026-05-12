@@ -1,0 +1,256 @@
+version: '3.8'
+
+services:
+  # ============================================
+  # Databases
+  # ============================================
+  
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: beaverchain
+      POSTGRES_PASSWORD: beaverchain123
+      POSTGRES_DB: beaverchain
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/initdb:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U beaverchain"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  redis:
+    image: redis:7.2-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  milvus:
+    image: milvusdb/milvus:v2.3.5
+    command: ["milvus", "run", "standalone"]
+    environment:
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+    volumes:
+      - milvus_data:/var/lib/milvus
+    ports:
+      - "19530:19530"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    depends_on:
+      etcd:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      - backend
+
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.5
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+      - ETCD_SNAPSHOT_COUNT=50000
+    volumes:
+      - etcd_data:/etcd
+    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - backend
+
+  minio:
+    image: minio/minio:latest
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: minio server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - backend
+
+  # ============================================
+  # Application Services
+  # ============================================
+
+  model-registry:
+    build:
+      context: .
+      target: python-builder
+    command: uvicorn model_registry.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./model_registry:/app/model_registry
+    environment:
+      - DATABASE_URL=postgresql://beaverchain:beaverchain123@postgres:5432/beaverchain
+      - REDIS_URL=redis://redis:6379/0
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_BUCKET=models
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      - backend
+      - frontend
+
+  optimization-toolchain:
+    build:
+      context: .
+      target: python-builder
+    command: uvicorn optimization_toolchain.main:app --host 0.0.0.0 --port 8001 --reload
+    volumes:
+      - ./optimization_toolchain:/app/optimization_toolchain
+    environment:
+      - DATABASE_URL=postgresql://beaverchain:beaverchain123@postgres:5432/beaverchain
+      - REDIS_URL=redis://redis:6379/1
+      - MILVUS_HOST=milvus
+      - MILVUS_PORT=19530
+    ports:
+      - "8001:8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      milvus:
+        condition: service_healthy
+    networks:
+      - backend
+
+  prompt-engine:
+    build:
+      context: .
+      target: go-builder
+    command: /bin/prompt-engine
+    environment:
+      - DATABASE_URL=postgresql://beaverchain:beaverchain123@postgres:5432/beaverchain
+      - REDIS_URL=redis://redis:6379/2
+    ports:
+      - "8002:8002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - backend
+
+  guardrails:
+    build:
+      context: .
+      target: go-builder
+    command: /bin/guardrails
+    environment:
+      - REDIS_URL=redis://redis:6379/3
+    ports:
+      - "8003:8003"
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - backend
+
+  frontend:
+    build:
+      context: .
+      target: frontend-builder
+    command: npm run dev -- --host 0.0.0.0 --port 3000
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000
+    depends_on:
+      - model-registry
+    networks:
+      - frontend
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - model-registry
+      - prompt-engine
+    networks:
+      - frontend
+      - backend
+
+  # ============================================
+  # Temporal (Workflow Engine)
+  # ============================================
+  
+  temporal:
+    image: temporalio/auto-setup:1.22.4
+    environment:
+      - DB=postgresql
+      - DB_PORT=5432
+      - POSTGRES_USER=beaverchain
+      - POSTGRES_PWD=beaverchain123
+      - POSTGRES_SEEDS=postgres
+      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development.yaml
+    ports:
+      - "7233:7233"
+      - "8080:8080"
+    volumes:
+      - ./docker/temporal/dynamicconfig:/etc/temporal/config/dynamicconfig
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - backend
+
+volumes:
+  postgres_data:
+  redis_data:
+  milvus_data:
+  etcd_data:
+  minio_data:
+
+networks:
+  backend:
+    driver: bridge
+  frontend:
+    driver: bridge
