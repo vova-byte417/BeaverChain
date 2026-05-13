@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "beaverchain-tests"
+version = "1.0.0"
+authors = [
+  { name="BeaverChain Team", email="team@beaverchain.ai" }
+]
+description = "BeaverChain 系统单元测试套件"
+requires-python = ">=3.10"
+dependencies = [
+  "pytest>=7.4.0",
+  "pytest-asyncio>=0.21.0",
+  "pytest-cov>=4.1.0",
+  "pytest-mock>=3.11.0",
+  "httpx>=0.24.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests/backend"]
+pythonpath = ["../p-mp2nnvkraon8mn-worker2", "../p-mp2nnvkraon8mn-worker2/model_registry", "../p-mp2nnvkraon8mn-worker2/optimization_toolchain"]
+python_files = ["test_*.py"]
+addopts = "-v --strict-markers"
+markers = [
+  "unit: 单元测试",
+  "integration: 集成测试",
+  "slow: 慢速测试",
+  "model_registry: 模型注册表测试",
+  "optimization: 优化工具链测试",
+  "orchestration: 编排引擎测试",
+  "evaluation: 评估模块测试",
+]
+
+[tool.coverage.run]
+source = [
+  "../p-mp2nnvkraon8mn-worker2/model_registry",
+  "../p-mp2nnvkraon8mn-worker2/optimization_toolchain",
+]
+omit = [
+  "*/tests/*",
+  "*/__init__.py",
+  "*/main.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+precision = 2
+exclude_lines = [
+  "pragma: no cover",
+  "def __repr__",
+  "raise AssertionError",
+  "raise NotImplementedError",
+  "if 0:",
+  "if __name__ == .__main__.:",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"

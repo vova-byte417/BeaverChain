@@ -1,0 +1,28 @@
+{
+  "name": "beaverchain-cicd",
+  "version": "0.1.0",
+  "description": "BeaverChain CI/CD configuration",
+  "private": true,
+  "devDependencies": {
+    "@commitlint/cli": "^18.0.0",
+    "@commitlint/config-conventional": "^18.0.0",
+    "@semantic-release/changelog": "^6.0.0",
+    "@semantic-release/commit-analyzer": "^11.0.0",
+    "@semantic-release/git": "^10.0.0",
+    "@semantic-release/github": "^9.0.0",
+    "@semantic-release/npm": "^11.0.0",
+    "@semantic-release/release-notes-generator": "^12.0.0",
+    "husky": "^8.0.0",
+    "semantic-release": "^22.0.0"
+  },
+  "scripts": {
+    "prepare": "husky install",
+    "commitlint": "commitlint --edit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vova-byte417/BeaverChain.git"
+  },
+  "author": "BeaverChain Team",
+  "license": "MIT"
+}
