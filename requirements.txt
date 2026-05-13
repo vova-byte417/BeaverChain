@@ -1,0 +1,114 @@
+# ==============================================
+# BeaverChain - 大模型构建平台
+# Python 依赖文件
+# 安装命令: pip install -r requirements.txt
+# ==============================================
+
+# ========== 核心深度学习框架 ==========
+torch>=2.1.0
+torchvision>=0.16.0
+torchaudio>=2.1.0
+
+# ========== 大模型推理与量化 ==========
+transformers>=4.35.0
+accelerate>=0.25.0
+sentencepiece>=0.1.99
+protobuf>=4.25.0
+bitsandbytes>=0.41.0
+autoawq>=0.1.8
+auto-gptq>=0.5.1
+
+# ========== vLLM 高速推理引擎 ==========
+vllm>=0.3.0
+
+# ========== Web 框架与 API ==========
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.5.0
+python-multipart>=0.0.6
+
+# ========== 数据库与缓存 ==========
+sqlalchemy>=2.0.23
+psycopg2-binary>=2.9.9
+redis>=5.0.1
+alembic>=1.12.1
+
+# ========== HTTP 客户端 ==========
+httpx>=0.25.0
+requests>=2.31.0
+aiohttp>=3.9.0
+
+# ========== 数据处理 ==========
+numpy>=1.24.0
+pandas>=2.1.0
+pyarrow>=14.0.0
+
+# ========== 日志与监控 ==========
+loguru>=0.7.2
+prometheus-client>=0.19.0
+psutil>=5.9.6
+gpustat>=1.1.1
+
+# ========== 配置管理 ==========
+python-dotenv>=1.0.0
+pyyaml>=6.0.1
+toml>=0.10.2
+
+# ========== 身份认证 ==========
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+python-multipart>=0.0.6
+
+# ========== 工具与辅助 ==========
+click>=8.1.7
+rich>=13.7.0
+tqdm>=4.66.0
+tenacity>=8.2.3
+typer>=0.9.0
+
+# ========== 测试框架 ==========
+pytest>=7.4.3
+pytest-asyncio>=0.21.1
+pytest-cov>=4.1.0
+httpx>=0.25.0
+
+# ========== 代码质量 ==========
+black>=23.11.0
+flake8>=6.1.0
+mypy>=1.7.0
+isort>=5.12.0
+
+# ========== Computer-Use (CUA) 相关依赖 ==========
+playwright>=1.40.0
+pillow>=10.1.0
+opencv-python>=4.8.0
+numpy>=1.24.0
+
+# ========== 异步与并发 ==========
+asyncio>=3.4.3
+aioredis>=2.0.1
+
+# ========== 日期时间处理 ==========
+python-dateutil>=2.8.2
+pytz>=2023.3
+
+# ========== 数学与统计 ==========
+scipy>=1.11.0
+scikit-learn>=1.3.0
+
+# ========== 可视化（生成报告用） ==========
+matplotlib>=3.8.0
+seaborn>=0.13.0
+plotly>=5.18.0
+
+# ========== Hugging Face 生态 ==========
+huggingface-hub>=0.19.0
+datasets>=2.15.0
+evaluate>=0.4.1
+
+# ========== 其他实用工具 ==========
+pathlib>=1.0.1
+zipfile36>=0.1.3
+filelock>=3.13.1
+packaging>=23.2
+importlib-metadata>=6.8.0

@@ -1,0 +1,37 @@
+# ==============================================
+# BeaverChain - 快速安装版依赖
+# 适合：想快速跑起来、不需要全部高级功能的用户
+# 安装命令: pip install -r requirements-fast.txt
+# ==============================================
+
+# ========== 最核心的深度学习依赖 ==========
+torch>=2.1.0
+transformers>=4.35.0
+accelerate>=0.25.0
+sentencepiece>=0.1.99
+
+# ========== 快速推理（必选） ==========
+vllm>=0.3.0
+
+# ========== Web 服务（必选） ==========
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.5.0
+
+# ========== 基础工具 ==========
+loguru>=0.7.2
+python-dotenv>=1.0.0
+pyyaml>=6.0.1
+rich>=13.7.0
+tqdm>=4.66.0
+requests>=2.31.0
+numpy>=1.24.0
+
+# ========== Computer-Use (CUA) 自动化（必选） ==========
+playwright>=1.40.0
+pillow>=10.1.0
+
+# ========== 快速安装说明 ==========
+# 安装后执行:
+# 1. playwright install chromium
+# 2. python -c "from transformers import AutoModel; print('✅ 环境准备完成！')"
